@@ -1,0 +1,72 @@
+#!/bin/bash
+
+WORK_DIR="/opt/gateway_mfr"
+PROG="bin/gateway_mfr"
+PROG_PI="/usr/libexec/provinfo"
+LOG="/var/log/provision.log"
+PROV_INFO_URL="https://prov.syncrob.it/register"
+
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+
+prov_ecc() {
+    msg_begin "Provisioning ECC chip"
+    
+    if ! [[ -e /dev/i2c-1 ]]; then
+        msg_fail "no I2C device"
+        return 1
+    fi
+
+    cd ${WORK_DIR}
+    export HOME=/var/run
+    ${PROG} ecc provision &>> ${LOG} &
+
+    msg_done
+}
+
+send_prov_info() {
+    msg_begin "Sending provisioning info"
+
+    prov_info=$(${PROG_PI})
+    if [[ $? != 0 ]]; then
+        msg_fail
+        return 1
+    fi
+    prov_info=(${prov_info})
+    
+    prov_info_json="{\"rpi_sn\": \"${prov_info[0]}\", \"ecc_sn\": \"${prov_info[1]}\", \"pub_key\": \"${prov_info[2]}\"}"
+    #curl -sSL "${PROV_INFO_URL}" -H "Content-Type: application/json" -X POST -d "${prov_info_json}"
+    #if [[ $? != 0 ]]; then
+    #    msg_fail
+    #    return 1
+    #fi
+
+    msg_done
+
+    echo " # RPi S/N: ${prov_info[0]}"
+    echo " # ECC S/N: ${prov_info[1]}"
+    echo " # Pub Key: ${prov_info[2]}"
+}
+
+start() {
+    prov_ecc && send_prov_info
+    if [[ $? != 0 ]]; then
+        return 1
+    fi
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+
+    stop)
+        ;;
+
+    *)
+        echo "Usage: $0 {start}"
+        exit 1
+esac
+
+exit $?

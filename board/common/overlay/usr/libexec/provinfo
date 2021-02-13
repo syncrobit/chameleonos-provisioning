@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-import base64
-import hashlib
+import binascii
 import time
 
 import pyatecc
 
 
 ECC_SLOT = 0
-RETRIES = 5
+RETRIES = 10
 
 
 def get_unit_serial_number():
@@ -16,33 +15,28 @@ def get_unit_serial_number():
         for line in f:
             if line.startswith('Serial'):
                 return line.strip()[-8:]
-    
+
     raise RuntimeError('Could not read CPU serial number')
 
 
-def make_password():
+def show_info():
     atecc = pyatecc.ATECC(1)
-    now = int(time.time())
     cpu_serial_number = get_unit_serial_number()
     ecc_serial_number = atecc.serial_number.lower()
-    to_hash = f'{now}.{cpu_serial_number}.{ecc_serial_number}'
-    to_sign = hashlib.sha256(to_hash.encode()).digest()
-    signature = atecc.ecdsa_sign(ECC_SLOT, to_sign)
-    signature_b32 = base64.b32encode(signature).decode()
-    password = f'{now}.{signature_b32}'
-    
-    return password
+    pub_key = atecc.gen_key(ECC_SLOT)
+    pub_key_hex = binascii.hexlify(pub_key).decode()
+
+    print(f'{cpu_serial_number} {ecc_serial_number} {pub_key_hex}')
 
 
 if __name__ == '__main__':
     for _ in range(RETRIES):
         try:
-            password = make_password()
+            show_info()
             break
-        
+
         except RuntimeError:
             time.sleep(0.5)
     else:
         raise RuntimeError('Timeout when talking to ECC')
 
-    print(password)

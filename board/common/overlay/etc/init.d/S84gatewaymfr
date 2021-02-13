@@ -1,0 +1,69 @@
+#!/bin/bash
+
+WORK_DIR="/opt/gateway_mfr"
+PROG="bin/gateway_mfr"
+FULL_PROG=${WORK_DIR}/${PROG}
+LOG="/var/log/gateway_mfr/startup.log"
+
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+
+start() {
+    msg_begin "Starting gateway-mfr"
+    
+    if ! [[ -e /dev/i2c-1 ]]; then
+        msg_fail "no I2C device"
+        return 1
+    fi
+
+    mkdir -p $(dirname ${LOG})
+
+    cd ${WORK_DIR}
+    
+    export RUNNER_LOG_DIR="/var/log/gateway_mfr"
+    export ERL_CRASH_DUMP="/var/log/gateway_mfr"
+    export ERL_EPMD_ADDRESS="127.0.0.1"
+    export HOME=/var/run
+
+    ${PROG} foreground &>> ${LOG} &
+
+    msg_done
+}
+
+stop() {
+    msg_begin "Stopping gateway-mfr"
+    
+    base_prog=$(basename ${PROG})
+    if killall -q ${base_prog}; then
+        # Allow 2 seconds for a gracefulish shutdown
+        sleep 2
+        msg_done
+    else
+        msg_fail
+    fi
+    
+    # Kill any remainings with SIGKILL
+    ps | grep -E 'gateway.?mfr' | grep -v $$ | grep -v grep | tr -s ' ' | sed -e 's/^\s//' | cut -d ' ' -f 1 | xargs -r kill -9
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+
+    stop)
+        stop
+        ;;
+
+    restart)
+        stop
+        start
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?

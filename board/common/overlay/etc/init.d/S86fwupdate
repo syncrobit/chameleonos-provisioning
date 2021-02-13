@@ -1,0 +1,38 @@
+#!/bin/bash
+
+PROG="/sbin/fwupdate"
+BASE_URL="http://firmware.syncrob.it"
+LATEST_URL="${BASE_URL}/latest_stable.json"
+
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+
+start() {
+    msg_begin "Upgrading to production firmware"
+
+    set -e
+    latest=$(curl -sSL ${LATEST_URL})
+    latest=$(jq -r '.path,.version,.date' <<<"${latest}")
+    latest=(${latest})
+    latest_path=${latest[0]}
+    latest_version=${latest[1]}
+    firmware_url="${BASE_URL}/${latest_path}"
+    
+    set +e
+    msg_background "${latest_version}"
+    touch /var/run/panic_prohibited
+    ${PROG} upgrade "${firmware_url}"
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+
+    *)
+        echo "Usage: $0 {start}"
+        exit 1
+esac
+
+exit $?
