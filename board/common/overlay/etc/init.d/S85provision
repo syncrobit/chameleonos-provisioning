@@ -4,7 +4,7 @@ WORK_DIR="/opt/gateway_mfr"
 PROG="bin/gateway_mfr"
 PROG_PI="/usr/libexec/provinfo"
 LOG="/var/log/provision.log"
-PROV_INFO_URL="https://prov.syncrob.it/register"
+PROV_REGISTER_URL="https://prov.syncrob.it/register"
 
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
@@ -34,9 +34,19 @@ send_prov_info() {
         return 1
     fi
     prov_info=(${prov_info})
-    
-    prov_info_json="{\"rpi_sn\": \"${prov_info[0]}\", \"ecc_sn\": \"${prov_info[1]}\", \"pub_key\": \"${prov_info[2]}\"}"
-    #curl -sSL "${PROV_INFO_URL}" -H "Content-Type: application/json" -X POST -d "${prov_info_json}"
+    test -r /sys/class/net/eth0/address && eth_mac=$(cat /sys/class/net/eth0/address)
+    test -r /sys/class/net/wlan0/address && wlan_mac=$(cat /sys/class/net/wlan0/address)
+    bt_mac=$(hcitool dev 2>/dev/null | grep -ioE '[a-f0-9:]{17}' | tr 'A-Z' 'a-z')
+
+    prov_info_json="{
+        \"rpi_sn\":\"${prov_info[0]}\",
+        \"ecc_sn\":\"${prov_info[1]}\",
+        \"pub_key\":\"${prov_info[2]}\",
+        \"eth_mac\":\"${eth_mac}\",
+        \"wlan_mac\":\"${wlan_mac}\",
+        \"bt_mac\":\"${bt_mac}\"
+    }"
+    #curl -sSL "${PROV_REGISTER_URL}" -H "Content-Type: application/json" -X POST -d "${prov_info_json}"
     #if [[ $? != 0 ]]; then
     #    msg_fail
     #    return 1
@@ -46,10 +56,12 @@ send_prov_info() {
     
     msg_done
 
-    echo " # RPi S/N: ${prov_info[0]}"
-    echo " # ECC S/N: ${prov_info[1]}"
-    echo " # Pub Key: ${prov_info[2]}"
-    
+    echo " # RPi S/N:  ${prov_info[0]}"
+    echo " # ECC S/N:  ${prov_info[1]}"
+    echo " # Pub Key:  ${prov_info[2]}"
+    echo " # ETH MAC:  ${eth_mac}"
+    echo " # WLAN MAC: ${wlan_mac}"
+    echo " # BT MAC:   ${bt_mac}"
 }
 
 start() {
