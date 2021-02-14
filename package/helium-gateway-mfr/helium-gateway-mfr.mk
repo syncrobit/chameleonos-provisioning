@@ -26,7 +26,7 @@ endef
 define HELIUM_GATEWAY_MFR_INSTALL_TARGET_CMDS
     mkdir -p $(TARGET_DIR)/opt/gateway_mfr/log; \
     cd $(TARGET_DIR)/opt/gateway_mfr; \
-    tar xvf $(@D)/_build/prod/rel/*/*.tar.gz \
+    tar xvf $(@D)/_build/prod/rel/*/*.tar.gz; \
     cp $(TARGET_DIR)/usr/lib/erlang/bin/no_dot_erlang.boot .
     
     rm -rf $(TARGET_DIR)/opt/gateway_mfr/$${HOME}
