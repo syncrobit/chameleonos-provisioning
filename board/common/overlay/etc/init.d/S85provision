@@ -42,18 +42,18 @@ send_prov_info() {
     #    return 1
     #fi
 
+    #echo -e "GPIO_NO=23\nGPIO_VAL=1" /var/lib/provision_ok_gpio
+    
     msg_done
 
     echo " # RPi S/N: ${prov_info[0]}"
     echo " # ECC S/N: ${prov_info[1]}"
     echo " # Pub Key: ${prov_info[2]}"
+    
 }
 
 start() {
     prov_ecc && send_prov_info
-    if [[ $? != 0 ]]; then
-        return 1
-    fi
 }
 
 case "$1" in

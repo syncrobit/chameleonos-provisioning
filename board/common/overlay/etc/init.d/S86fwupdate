@@ -17,7 +17,7 @@ start() {
     latest=(${latest})
     latest_path=${latest[0]}
     latest_version=${latest[1]}
-    firmware_url="${BASE_URL}/${latest_path}"
+    firmware_url="${BASE_URL}${latest_path}"
     
     set +e
     msg_background "${latest_version}"
@@ -28,6 +28,9 @@ start() {
 case "$1" in
     start)
         start
+        ;;
+    
+    stop)
         ;;
 
     *)

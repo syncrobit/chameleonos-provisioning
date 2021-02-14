@@ -27,6 +27,7 @@ start() {
     export HOME=/var/run
 
     ${PROG} foreground &>> ${LOG} &
+    sleep 2  # Allow 2 seconds for service to become reachable
 
     msg_done
 }
