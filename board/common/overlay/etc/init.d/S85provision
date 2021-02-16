@@ -59,7 +59,6 @@ send_prov_info() {
     echo " # Pub Key: ${prov_info[2]}"
     echo " # ETH MAC:  ${eth_mac}"
     echo " # WLAN MAC: ${wlan_mac}"
-    
 }
 
 start() {
