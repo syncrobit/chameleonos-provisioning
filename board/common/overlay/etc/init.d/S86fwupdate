@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROG="/sbin/fwupdate"
-BASE_URL="http://firmware.syncrob.it"
+BASE_URL="https://fwd.syncrob.it"
 LATEST_URL="${BASE_URL}/cham/latest_stable.json"
 
 
