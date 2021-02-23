@@ -4,7 +4,7 @@ WORK_DIR="/opt/gateway_mfr"
 PROG="bin/gateway_mfr"
 PROG_PI="/usr/libexec/provinfo"
 LOG="/var/log/provision.log"
-PROV_REGISTER_URL="https://api.syncrob.it/provisioning"
+PROV_REGISTER_URL="https://api.syncrob.it/provisioning/"
 AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
 
 
