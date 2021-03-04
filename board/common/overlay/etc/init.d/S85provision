@@ -49,11 +49,11 @@ send_prov_info() {
     prov_info_json=$(echo "${prov_info_json}" | tr -d '\t\n ')
     checksum=$(echo -n "${prov_info_json}" | md5sum | grep -oE '[a-f0-9]+')
     
-    curl -sSL "${PROV_REGISTER_URL}" \
+    curl --insecure --fail -sSL "${PROV_REGISTER_URL}" \
          -H "Content-Type: application/json" \
          -H "Authorization: ${AUTH_TOKEN}" \
          -H "Content-Md5: ${checksum}" \
-         -X POST -d "${prov_info_json}"
+         -X POST -d "${prov_info_json}" >/dev/null
     if [[ $? != 0 ]]; then
         msg_fail
         return 1
@@ -71,7 +71,7 @@ send_prov_info() {
 }
 
 start() {
-    prov_ecc && send_prov_info
+    prov_ecc && send_prov_info || reboot
 }
 
 case "$1" in
