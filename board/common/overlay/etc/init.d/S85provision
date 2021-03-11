@@ -71,7 +71,10 @@ send_prov_info() {
 }
 
 start() {
-    prov_ecc && send_prov_info || reboot
+    if ! (prov_ecc && send_prov_info); then
+        reboot
+        return 1
+    fi
 }
 
 case "$1" in

@@ -1,0 +1,89 @@
+#!/bin/bash
+
+PROG_ECC_INFO="/usr/libexec/eccinfo"
+PROG_CHIP_ID="/opt/packet_forwarder/bin/chip_id"
+
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+
+test_eth() {
+    msg_begin "Testing ethernet adapter"
+    
+    if ! [[ -r /sys/class/net/eth0/address ]]; then
+        msg_fail "no device"
+    fi
+
+    msg_done "passed"
+}
+
+test_wlan() {
+    msg_begin "Testing WiFi adapter"
+    
+    if ! [[ -r /sys/class/net/wlan0/address ]]; then
+        msg_fail "no device"
+    fi
+
+    msg_done "passed"
+}
+
+test_bt() {
+    msg_begin "Testing Bluetooth adapter"
+    
+    if ! hciconfig hci0 &>/dev/null; then
+        msg_fail "no device"
+    fi
+
+    msg_done "passed"
+}
+
+test_ecc() {
+    msg_begin "Testing ECC chip"
+    
+    if ! [[ -e /dev/i2c-1 ]]; then
+        msg_fail "no I2C device"
+        return 1
+    fi
+
+    if ! ${PROG_ECC_INFO} &>/dev/null; then
+        msg_fail "timeout talking to ECC chip"
+        return 1
+    fi
+
+    msg_done "passed"
+}
+
+test_sx1302() {
+    msg_begin "Testing SX1302 board"
+    
+    cd $(dirname ${PROG_CHIP_ID})
+    if ! ${PROG_CHIP_ID} &>/dev/null; then
+        msg_fail "no board"
+    fi
+
+    msg_done "passed"
+}
+
+start() {
+    set -e
+    test_eth
+    test_wlan
+    test_bt
+    test_ecc
+    test_sx1302
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+
+    stop)
+        ;;
+
+    *)
+        echo "Usage: $0 {start}"
+        exit 1
+esac
+
+exit $?
