@@ -2,6 +2,9 @@
 
 PROG_ECC_INFO="/usr/libexec/eccinfo"
 PROG_CHIP_ID="/opt/packet_forwarder/bin/chip_id"
+PROV_TESTS_URL="https://api.syncrob.it/provtests/"
+LOG="/var/log/provision.log"
+AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
 
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
@@ -53,24 +56,52 @@ test_ecc() {
     msg_done "passed"
 }
 
-test_sx1302() {
-    msg_begin "Testing SX1302 board"
+test_radio() {
+    msg_begin "Testing radio board"
     
     cd $(dirname ${PROG_CHIP_ID})
     if ! ${PROG_CHIP_ID} &>/dev/null; then
         msg_fail "no board"
+        return 1
     fi
 
     msg_done "passed"
 }
 
 start() {
-    set -e
-    test_eth
-    test_wlan
-    test_bt
-    test_ecc
-    test_sx1302
+    result=0
+    eth_result=0
+    wlan_result=0
+    bt_result=0
+    ecc_result=0
+    radio_result=0
+
+    test_eth || (eth_result=1; result=1)
+    test_wlan || (wlan_result=1; result=1)
+    test_bt || (bt_result=1; result=1)
+    test_ecc || (ecc_result=1; result=1)
+    test_radio || (radio_result=1; result=1)
+    
+    payload="{
+        \"rpi_sn\":\"${BOARD_SN}\",
+        \"eth\":\"${eth_result}\",
+        \"wlan\":\"${wlan_result}\",
+        \"ble\":\"${bt_result}\",
+        \"ecc\":\"${ecc_result}\",
+        \"radio\":\"${radio_result}\"
+    }"
+    
+    payload=$(echo "${payload}" | tr -d '\t\n ')
+
+    curl -v --insecure --fail -L "${PROV_TESTS_URL}" \
+         -H "Content-Type: application/json" \
+         -H "Authorization: ${AUTH_TOKEN}" \
+         -X POST -d "${payload}" &>> ${LOG}
+    if [[ $? != 0 ]]; then
+        result=1
+    fi
+    
+    return ${result}
 }
 
 case "$1" in
