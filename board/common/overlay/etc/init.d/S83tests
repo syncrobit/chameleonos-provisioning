@@ -117,6 +117,7 @@ start() {
     fi
 
     if [[ ${result} != 0 ]]; then
+        sleep 30
         reboot
     fi
     
