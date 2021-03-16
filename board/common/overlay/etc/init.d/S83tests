@@ -4,7 +4,7 @@ PROG_ECC_INFO="/usr/libexec/eccinfo"
 PROG_CHIP_ID="/opt/packet_forwarder/bin/chip_id"
 PROV_TESTS_URL="https://api.syncrob.it/provtests/"
 LOG="/var/log/provision.log"
-AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
+AUTH_TOKEN="3F4ECC8F2C95134BCA7281C83B879"
 
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
@@ -76,19 +76,34 @@ start() {
     ecc_result=0
     radio_result=0
 
-    test_eth || (eth_result=1; result=1)
-    test_wlan || (wlan_result=1; result=1)
-    test_bt || (bt_result=1; result=1)
-    test_ecc || (ecc_result=1; result=1)
-    test_radio || (radio_result=1; result=1)
-    
+    if ! test_eth; then
+        eth_result=1
+        result=1
+    fi
+    if ! test_wlan; then
+        wlan_result=1
+        result=1
+    fi
+    if ! test_bt; then
+        bt_result=1
+        result=1
+    fi
+    if ! test_ecc; then
+        ecc_result=1
+        result=1
+    fi
+    if ! test_radio; then
+        radio_result=1
+        result=1
+    fi
+
     payload="{
         \"rpi_sn\":\"${BOARD_SN}\",
-        \"eth\":\"${eth_result}\",
-        \"wlan\":\"${wlan_result}\",
-        \"ble\":\"${bt_result}\",
-        \"ecc\":\"${ecc_result}\",
-        \"radio\":\"${radio_result}\"
+        \"eth\":${eth_result},
+        \"wlan\":${wlan_result},
+        \"ble\":${bt_result},
+        \"ecc\":${ecc_result},
+        \"radio\":${radio_result}
     }"
     
     payload=$(echo "${payload}" | tr -d '\t\n ')
