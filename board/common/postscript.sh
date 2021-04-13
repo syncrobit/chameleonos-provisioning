@@ -2,12 +2,16 @@
 
 set -e
 
+FINAL_OS_BASE_URL="https://syncrobit-firmware.us-east-1.linodeobjects.com"
+FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/cham/latest_stable.json"
+
 export TARGET="$1"
 export BOARD=$(basename $(dirname ${TARGET}))
 export COMMON_DIR=$(dirname $0)
 export BOARD_DIR=${COMMON_DIR}/../${BOARD}
 export BOOT_DIR=${TARGET}/../images/boot/
 export IMG_DIR=${TARGET}/../images
+export DL_DIR=$(realpath ${TARGET}/../../../dl)
 
 mkdir -p ${BOOT_DIR}
 
@@ -48,6 +52,24 @@ if [ -r ${BOARD_DIR}/os.conf ]; then
 fi
 
 # add admin user alias
-if ! grep -E '^admin:' ${TARGET}/etc/passwd &> /dev/null; then
+if ! grep -qE '^admin:' ${TARGET}/etc/passwd; then
     echo "admin:x:0:0:root:/root:/bin/sh" >> ${TARGET}/etc/passwd
 fi
+
+# embed final OS
+latest_info=$(curl -sSL ${FINAL_OS_LATEST_URL})
+latest_path=$(echo "${latest_info}" | jq -r .path)
+final_os_url="${FINAL_OS_BASE_URL}${latest_path}"
+final_os_filename=$(basename ${latest_path})
+final_os_filepath=${DL_DIR}/${final_os_filename}
+if ! [ -s ${final_os_filepath} ]; then
+    curl -L --fail ${final_os_url} -o ${final_os_filepath}.part
+    fsize=$(stat -c %s ${final_os_filepath}.part)
+    if [ ${fsize} -lt 80000000 ]; then
+        echo "invalid final OS file size"
+        exit 1
+    fi
+    mv ${final_os_filepath}.part ${final_os_filepath}
+fi
+
+cp ${final_os_filepath} ${TARGET}/final_firmware.img.xz
