@@ -3,7 +3,8 @@
 set -e
 
 FINAL_OS_BASE_URL="https://syncrobit-firmware.us-east-1.linodeobjects.com"
-FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/cham/latest_stable.json"
+FINAL_OS_LATEST_STABLE_URL="${FINAL_OS_BASE_URL}/cham/latest_stable.json"
+FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/cham/latest.json"
 
 export TARGET="$1"
 export BOARD=$(basename $(dirname ${TARGET}))
@@ -57,11 +58,17 @@ if ! grep -qE '^admin:' ${TARGET}/etc/passwd; then
 fi
 
 # embed final OS
-latest_info=$(curl -sSL ${FINAL_OS_LATEST_URL})
+if [[ -n "${CHPR_LATEST_BETA}" ]]; then
+    latest_url=${FINAL_OS_LATEST_URL}
+else
+    latest_url=${FINAL_OS_LATEST_STABLE_URL}
+fi
+latest_info=$(curl -sSL ${latest_url})
 latest_path=$(echo "${latest_info}" | jq -r .path)
 final_os_url="${FINAL_OS_BASE_URL}${latest_path}"
 final_os_filename=$(basename ${latest_path})
 final_os_filepath=${DL_DIR}/${final_os_filename}
+echo "embedding final OS ${final_os_filename}"
 if ! [ -s ${final_os_filepath} ]; then
     curl -L --fail ${final_os_url} -o ${final_os_filepath}.part
     fsize=$(stat -c %s ${final_os_filepath}.part)
