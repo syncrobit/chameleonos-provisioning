@@ -49,7 +49,7 @@ send_prov_info() {
     prov_info_json=$(echo "${prov_info_json}" | tr -d '\t\n ')
     checksum=$(echo -n "${prov_info_json}" | md5sum | grep -oE '[a-f0-9]+')
     
-    curl -v --insecure --fail -L "${PROV_REGISTER_URL}" \
+    curl --verbose --insecure --fail --location-trusted "${PROV_REGISTER_URL}" \
          -H "Content-Type: application/json" \
          -H "Authorization: ${AUTH_TOKEN}" \
          -H "Content-Md5: ${checksum}" \

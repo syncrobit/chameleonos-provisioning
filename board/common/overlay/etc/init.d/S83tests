@@ -108,7 +108,7 @@ start() {
     
     payload=$(echo "${payload}" | tr -d '\t\n ')
 
-    curl -v --insecure --fail -L "${PROV_TESTS_URL}" \
+    curl --verbose --insecure --fail --location-trusted "${PROV_TESTS_URL}" \
          -H "Content-Type: application/json" \
          -H "Authorization: ${AUTH_TOKEN}" \
          -X POST -d "${payload}" &>> ${LOG}

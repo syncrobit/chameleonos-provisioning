@@ -17,7 +17,7 @@ start() {
         firmware_url=${FINAL_FIRMWARE_PATH}
     else
         set -e
-        latest=$(curl -sSL ${LATEST_URL})
+        latest=$(curl --silent --show-error --location-trusted ${LATEST_URL})
         latest=$(jq -r '.path,.version,.date' <<<"${latest}")
         latest=(${latest})
         latest_path=${latest[0]}
