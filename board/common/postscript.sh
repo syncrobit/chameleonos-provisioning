@@ -58,7 +58,7 @@ if ! grep -qE '^admin:' ${TARGET}/etc/passwd; then
 fi
 
 # embed final OS
-if [[ -n "${CHPR_LATEST_BETA}" ]]; then
+if [ -n "${CHPR_LATEST_BETA}" ]; then
     latest_url=${FINAL_OS_LATEST_URL}
 else
     latest_url=${FINAL_OS_LATEST_STABLE_URL}
