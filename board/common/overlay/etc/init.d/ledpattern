@@ -1,0 +1,21 @@
+#!/bin/bash
+
+LED_PROG="/usr/bin/ledstrip"
+LED_PATTERN_FILE="/var/run/led_strip_pattern"
+
+
+set_led_pattern() {
+    # $1 - LED no.
+    # $2 - color
+    
+    if [[ -s ${LED_PATTERN_FILE} ]]; then
+        pattern=$(cat ${LED_PATTERN_FILE})
+    else
+        pattern="off off off off off off"
+    fi
+    
+    pattern=(${pattern})
+    pattern[${1}]=$2
+    echo "${pattern[@]}" > ${LED_PATTERN_FILE}
+    ${LED_PROG} pattern "${pattern[@]}"
+}

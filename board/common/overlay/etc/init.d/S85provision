@@ -15,6 +15,8 @@ LED_COLOR_ERROR="red"
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
+source /etc/init.d/ledpattern
+
 
 prov_ecc() {
     msg_begin "Provisioning ECC chip"
@@ -36,7 +38,7 @@ send_prov_info() {
 
     prov_info=$(${PROG_PI})
     if [[ $? != 0 ]]; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR}
+        set_led_pattern 5 ${LED_COLOR_ERROR}
         msg_fail
         return 1
     fi
@@ -61,7 +63,7 @@ send_prov_info() {
          -H "Content-Md5: ${checksum}" \
          -X POST -d "${prov_info_json}" &>> ${LOG}
     if [[ $? != 0 ]]; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR}
+        set_led_pattern 5 ${LED_COLOR_ERROR}
         msg_fail
         return 1
     fi
@@ -78,6 +80,7 @@ send_prov_info() {
 
 start() {
     if ! (prov_ecc && send_prov_info); then
+        sleep 86400
         reboot
         return 1
     fi

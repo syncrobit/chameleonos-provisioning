@@ -6,12 +6,12 @@ PROV_TESTS_URL="https://api.syncrob.it/provtests/"
 LOG="/var/log/provision.log"
 AUTH_TOKEN="3F4ECC8F2C95134BCA7281C83B879"
 
-LED_PROG="/usr/bin/ledstrip"
 LED_COLOR_OK="green"
 LED_COLOR_ERROR="red"
 
-
 test -n "${OS_VERSION}" || source /etc/init.d/base
+
+source /etc/init.d/ledpattern
 
 
 test_eth() {
@@ -28,11 +28,11 @@ test_wlan() {
     msg_begin "Testing WiFi adapter"
     
     if ! [[ -r /sys/class/net/wlan0/address ]]; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off off off
+        set_led_pattern 1 ${LED_COLOR_ERROR}
         msg_fail "no device"
     fi
 
-    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} off off off off
+    set_led_pattern 1 ${LED_COLOR_OK}
     msg_done "passed"
 }
 
@@ -40,11 +40,11 @@ test_bt() {
     msg_begin "Testing Bluetooth adapter"
     
     if ! hciconfig hci0 &>/dev/null; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off off
+        set_led_pattern 2 ${LED_COLOR_ERROR}
         msg_fail "no device"
     fi
 
-    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} off off off
+    set_led_pattern 2 ${LED_COLOR_OK}
     msg_done "passed"
 }
 
@@ -52,18 +52,18 @@ test_ecc() {
     msg_begin "Testing ECC chip"
     
     if ! [[ -e /dev/i2c-1 ]]; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off
+        set_led_pattern 3 ${LED_COLOR_ERROR}
         msg_fail "no I2C device"
         return 1
     fi
 
     if ! ${PROG_ECC_INFO} &>/dev/null; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off
+        set_led_pattern 3 ${LED_COLOR_ERROR}
         msg_fail "timeout talking to ECC chip"
         return 1
     fi
 
-    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} off off
+    set_led_pattern 3 ${LED_COLOR_OK}
     msg_done "passed"
 }
 
@@ -72,12 +72,12 @@ test_radio() {
     
     cd $(dirname ${PROG_CHIP_ID})
     if ! ${PROG_CHIP_ID} &>/dev/null; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off
+        set_led_pattern 4 ${LED_COLOR_ERROR}
         msg_fail "no board"
         return 1
     fi
 
-    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} off
+    set_led_pattern 4 ${LED_COLOR_OK}
     msg_done "passed"
 }
 
@@ -130,7 +130,7 @@ start() {
     fi
 
     if [[ ${result} != 0 ]]; then
-        sleep 30
+        sleep 86400
         reboot
     fi
     

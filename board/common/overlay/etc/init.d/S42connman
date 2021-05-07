@@ -11,7 +11,6 @@ ONLINE_TIMEOUT_INITIAL=10
 ONLINE_TIMEOUT_CHECK=5
 ONLINE_HANDLER_SCRIPT="/usr/libexec/connman-online-handler"
 
-LED_PROG="/usr/bin/ledstrip"
 LED_COLOR_OK="green"
 LED_COLOR_ERROR="red"
 
@@ -20,6 +19,9 @@ test -x ${PROG} || exit 0
 test -s ${CONF} || exit 0
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
+
+source /etc/init.d/ledpattern
+
 
 watch_online() {
     is_online=false
@@ -57,10 +59,10 @@ start() {
 
     ${PROG_WO} --timeout=${timeout}
     if [[ test $? == 0 ]]; then
-        ${LED_PROG} pattern ${LED_COLOR_OK} off off off off off
+        set_led_pattern 0 ${LED_COLOR_OK}
         msg_done
     else
-        ${LED_PROG} pattern ${LED_COLOR_ERROR} off off off off off
+        set_led_pattern 0 ${LED_COLOR_ERROR}
         msg_fail
     fi
 }
