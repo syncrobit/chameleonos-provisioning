@@ -7,6 +7,11 @@ LOG="/var/log/provision.log"
 PROV_REGISTER_URL="https://api.syncrob.it/provisioning/"
 AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
 
+LED_PROG="/usr/bin/ledstrip"
+LED_COLOR_OK="green"
+LED_COLOR_DONE="blue"
+LED_COLOR_ERROR="red"
+
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
@@ -31,6 +36,7 @@ send_prov_info() {
 
     prov_info=$(${PROG_PI})
     if [[ $? != 0 ]]; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR}
         msg_fail
         return 1
     fi
@@ -55,12 +61,12 @@ send_prov_info() {
          -H "Content-Md5: ${checksum}" \
          -X POST -d "${prov_info_json}" &>> ${LOG}
     if [[ $? != 0 ]]; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR}
         msg_fail
         return 1
     fi
 
-    #echo -e "GPIO_NO=23\nGPIO_VAL=1" /var/lib/provision_ok_gpio
-    
+    ${LED_PROG} pattern ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE}
     msg_done
 
     echo " # RPi S/N:  ${prov_info[0]}"

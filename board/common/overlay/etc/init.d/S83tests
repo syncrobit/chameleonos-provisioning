@@ -6,6 +6,10 @@ PROV_TESTS_URL="https://api.syncrob.it/provtests/"
 LOG="/var/log/provision.log"
 AUTH_TOKEN="3F4ECC8F2C95134BCA7281C83B879"
 
+LED_PROG="/usr/bin/ledstrip"
+LED_COLOR_OK="green"
+LED_COLOR_ERROR="red"
+
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
@@ -24,9 +28,11 @@ test_wlan() {
     msg_begin "Testing WiFi adapter"
     
     if ! [[ -r /sys/class/net/wlan0/address ]]; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off off off
         msg_fail "no device"
     fi
 
+    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} off off off off
     msg_done "passed"
 }
 
@@ -34,9 +40,11 @@ test_bt() {
     msg_begin "Testing Bluetooth adapter"
     
     if ! hciconfig hci0 &>/dev/null; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off off
         msg_fail "no device"
     fi
 
+    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} off off off
     msg_done "passed"
 }
 
@@ -44,15 +52,18 @@ test_ecc() {
     msg_begin "Testing ECC chip"
     
     if ! [[ -e /dev/i2c-1 ]]; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off
         msg_fail "no I2C device"
         return 1
     fi
 
     if ! ${PROG_ECC_INFO} &>/dev/null; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off off
         msg_fail "timeout talking to ECC chip"
         return 1
     fi
 
+    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} off off
     msg_done "passed"
 }
 
@@ -61,10 +72,12 @@ test_radio() {
     
     cd $(dirname ${PROG_CHIP_ID})
     if ! ${PROG_CHIP_ID} &>/dev/null; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_ERROR} off
         msg_fail "no board"
         return 1
     fi
 
+    ${LED_PROG} pattern ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} ${LED_COLOR_OK} off
     msg_done "passed"
 }
 

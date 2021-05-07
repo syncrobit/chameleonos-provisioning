@@ -11,6 +11,10 @@ ONLINE_TIMEOUT_INITIAL=10
 ONLINE_TIMEOUT_CHECK=5
 ONLINE_HANDLER_SCRIPT="/usr/libexec/connman-online-handler"
 
+LED_PROG="/usr/bin/ledstrip"
+LED_COLOR_OK="green"
+LED_COLOR_ERROR="red"
+
 
 test -x ${PROG} || exit 0
 test -s ${CONF} || exit 0
@@ -52,7 +56,13 @@ start() {
     test -x ${ONLINE_HANDLER_SCRIPT} && watch_online &> /var/log/online-handler.log &
 
     ${PROG_WO} --timeout=${timeout}
-    test $? == 0 && msg_done || msg_fail
+    if [[ test $? == 0 ]]; then
+        ${LED_PROG} pattern ${LED_COLOR_OK} off off off off off
+        msg_done
+    else
+        ${LED_PROG} pattern ${LED_COLOR_ERROR} off off off off off
+        msg_fail
+    fi
 }
 
 stop() {

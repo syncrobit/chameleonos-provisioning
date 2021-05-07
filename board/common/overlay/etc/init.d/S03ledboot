@@ -1,0 +1,24 @@
+#!/bin/bash
+
+PROG="/usr/bin/ledstrip"
+COLOR="white"
+
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+case "$1" in
+    start)
+        ${PROG} on ${COLOR}
+        ;;
+
+    stop)
+        true
+        ;;
+
+    *)
+        echo "Usage: $0 {start}"
+        exit 1
+esac
+
+exit $?
+
