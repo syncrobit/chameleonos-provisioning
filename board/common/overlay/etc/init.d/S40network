@@ -15,12 +15,16 @@ CONNMAN_CONF="/etc/connman/main.conf"
 
 LINK_NEGO_TIMEOUT=10
 
+LED_COLOR_OK="green"
+LED_COLOR_ERROR="red"
+
 
 test -s ${CONNMAN_CONF} && exit 0
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
 source ${WATCH_CONF}
+source /etc/init.d/ledpattern
 
 prepare_conf ${STATIC_CONF} ${SYS_STATIC_CONF} ${BOOT_STATIC_CONF}
 test -r ${STATIC_CONF} && source ${STATIC_CONF}
@@ -200,6 +204,7 @@ start() {
     fi
 
     if [[ "${eth_ok}" != "ok" ]] && [[ "${wlan_ok}" != "ok" ]] && [[ "${ppp_ok}" != "ok" ]]; then
+        set_led_pattern 0 ${LED_COLOR_ERROR}
         if [[ "${LINK_WATCH}" == "true" ]]; then
             panic_action network "no network connection available"
             return 1
@@ -208,6 +213,8 @@ start() {
             return 0
         fi
     fi
+    
+    set_led_pattern 0 ${LED_COLOR_OK}
 
     if [[ -r ${INTERFACES_CONF} ]]; then
         # ifup doesn't set the DNS server, so we have to set it manually
