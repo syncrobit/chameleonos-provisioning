@@ -129,8 +129,9 @@ start() {
     if [[ $? != 0 ]]; then
         set_led_pattern 5 ${LED_COLOR_ERROR}
         result=1
+    else
+        set_led_pattern 5 ${LED_COLOR_OK_PENDING}
     fi
-    set_led_pattern 5 ${LED_COLOR_OK_PENDING}
 
     if [[ ${result} != 0 ]]; then
         sleep 86400
