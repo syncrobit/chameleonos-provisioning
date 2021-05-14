@@ -7,6 +7,7 @@ LOG="/var/log/provision.log"
 AUTH_TOKEN="3F4ECC8F2C95134BCA7281C83B879"
 
 LED_COLOR_OK="green"
+LED_COLOR_OK_PENDING="yellow"
 LED_COLOR_ERROR="red"
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
@@ -63,7 +64,7 @@ test_ecc() {
         return 1
     fi
 
-    set_led_pattern 3 ${LED_COLOR_OK}
+    set_led_pattern 3 ${LED_COLOR_OK_PENDING}
     msg_done "passed"
 }
 
@@ -126,8 +127,10 @@ start() {
          -H "Authorization: ${AUTH_TOKEN}" \
          -X POST -d "${payload}" &>> ${LOG}
     if [[ $? != 0 ]]; then
+        set_led_pattern 5 ${LED_COLOR_ERROR}
         result=1
     fi
+    set_led_pattern 5 ${LED_COLOR_OK_PENDING}
 
     if [[ ${result} != 0 ]]; then
         sleep 86400

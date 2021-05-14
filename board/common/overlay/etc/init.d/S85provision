@@ -9,6 +9,7 @@ AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
 
 LED_PROG="/usr/bin/ledstrip"
 LED_COLOR_OK="green"
+LED_COLOR_OK_PENDING="yellow"
 LED_COLOR_DONE="blue"
 LED_COLOR_ERROR="red"
 
@@ -22,6 +23,7 @@ prov_ecc() {
     msg_begin "Provisioning ECC chip"
     
     if ! [[ -e /dev/i2c-1 ]]; then
+        set_led_pattern 4 ${LED_COLOR_ERROR}
         msg_fail "no I2C device"
         return 1
     fi
@@ -38,11 +40,13 @@ send_prov_info() {
 
     prov_info=$(${PROG_PI})
     if [[ $? != 0 ]]; then
-        set_led_pattern 5 ${LED_COLOR_ERROR}
+        set_led_pattern 4 ${LED_COLOR_ERROR}
         msg_fail
         return 1
     fi
+    set_led_pattern 4 ${LED_COLOR_OK}
     prov_info=(${prov_info})
+    
     test -r /sys/class/net/eth0/address && eth_mac=$(cat /sys/class/net/eth0/address)
     test -r /sys/class/net/wlan0/address && wlan_mac=$(cat /sys/class/net/wlan0/address)
 
@@ -67,6 +71,7 @@ send_prov_info() {
         msg_fail
         return 1
     fi
+    set_led_pattern 5 ${LED_COLOR_OK}
 
     ${LED_PROG} pattern ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE} ${LED_COLOR_DONE}
     msg_done
