@@ -14,6 +14,7 @@ function ssh_reverse_tunnel() {
 }
 
 start() {
+    chmod go-rwx /data/etc/ssh/id_rsa*
     ssh_reverse_tunnel &>/var/log/ssh_reverse_tunnel.log &
     echo $! > /var/run/ssh_reverse_tunnel.pid
 }
