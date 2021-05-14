@@ -2,6 +2,7 @@
 
 PROG_ECC_INFO="/usr/libexec/eccinfo"
 PROG_CHIP_ID="/opt/packet_forwarder/bin/chip_id"
+PROG_TUNNEL="/sbin/sshtunnel"
 PROV_TESTS_URL="https://api.syncrob.it/provtests/"
 LOG="/var/log/provision.log"
 AUTH_TOKEN="3F4ECC8F2C95134BCA7281C83B879"
@@ -134,6 +135,7 @@ start() {
     fi
 
     if [[ ${result} != 0 ]]; then
+        ${PROG_TUNNEL} start
         sleep 86400
         reboot
     fi

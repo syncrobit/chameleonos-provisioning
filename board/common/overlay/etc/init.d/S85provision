@@ -3,6 +3,7 @@
 WORK_DIR="/opt/gateway_mfr"
 PROG="bin/gateway_mfr"
 PROG_PI="/usr/libexec/provinfo"
+PROG_TUNNEL="/sbin/sshtunnel"
 LOG="/var/log/provision.log"
 PROV_REGISTER_URL="https://api.syncrob.it/provisioning/"
 AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
@@ -85,6 +86,7 @@ send_prov_info() {
 
 start() {
     if ! (prov_ecc && send_prov_info); then
+        ${PROG_TUNNEL} start
         sleep 86400
         reboot
         return 1
