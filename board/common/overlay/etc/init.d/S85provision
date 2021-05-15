@@ -24,14 +24,18 @@ prov_ecc() {
     msg_begin "Provisioning ECC chip"
     
     if ! [[ -e /dev/i2c-1 ]]; then
-        set_led_pattern 4 ${LED_COLOR_ERROR}
+        set_led_pattern 3 ${LED_COLOR_ERROR}
         msg_fail "no I2C device"
         return 1
     fi
 
     cd ${WORK_DIR}
     export HOME=/var/run
-    ${PROG} ecc provision &>> ${LOG} &
+    
+    # Retry multiple times to provision, as ECC communication may sometimes fail
+    ${PROG} ecc provision &>> ${LOG}
+    ${PROG} ecc provision &>> ${LOG}
+    ${PROG} ecc provision &>> ${LOG}
 
     msg_done
 }
@@ -41,11 +45,11 @@ send_prov_info() {
 
     prov_info=$(${PROG_PI})
     if [[ $? != 0 ]]; then
-        set_led_pattern 4 ${LED_COLOR_ERROR}
+        set_led_pattern 3 ${LED_COLOR_ERROR}
         msg_fail
         return 1
     fi
-    set_led_pattern 4 ${LED_COLOR_OK}
+    set_led_pattern 3 ${LED_COLOR_OK}
     prov_info=(${prov_info})
     
     test -r /sys/class/net/eth0/address && eth_mac=$(cat /sys/class/net/eth0/address)
