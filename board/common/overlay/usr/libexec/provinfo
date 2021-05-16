@@ -1,43 +1,18 @@
 #!/usr/bin/env python
 
 import binascii
-import time
 
-import pyatecc
-
-
-ECC_SLOT = 0
-RETRIES = 10
-
-
-def get_unit_serial_number():
-    with open('/proc/cpuinfo', 'rt') as f:
-        for line in f:
-            if line.startswith('Serial'):
-                return line.strip()[-8:]
-
-    raise RuntimeError('Could not read CPU serial number')
+import chamutils
 
 
 def show_info():
-    atecc = pyatecc.ATECC(1)
-    cpu_serial_number = get_unit_serial_number()
-    ecc_serial_number = atecc.serial_number.lower()
-    pub_key = atecc.gen_key(ECC_SLOT)
+    cpu_serial_number = chamutils.get_unit_serial_number()
+    ecc_serial_number = chamutils.get_ecc_serial_number()
+    pub_key = chamutils.get_ecc_pub_key()
     pub_key_hex = binascii.hexlify(pub_key).decode()
 
     print(f'{cpu_serial_number} {ecc_serial_number} {pub_key_hex}')
 
 
 if __name__ == '__main__':
-    for _ in range(RETRIES):
-        try:
-            show_info()
-            break
-
-        except Exception:
-            time.sleep(0.5)
-
-    else:
-        raise RuntimeError('Timeout when talking to ECC')
-
+    show_info()
