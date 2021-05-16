@@ -4,9 +4,13 @@ WORK_DIR="/opt/gateway_mfr"
 PROG="bin/gateway_mfr"
 FULL_PROG=${WORK_DIR}/${PROG}
 LOG="/var/log/gateway_mfr/startup.log"
+SYS_CONF="/opt/gateway_mfr/releases/0.1.0/sys.config"
+HARDWARE_CONF="/var/run/hardware.conf"
 
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
+
+source ${HARDWARE_CONF}
 
 
 start() {
@@ -24,7 +28,15 @@ start() {
     export RUNNER_LOG_DIR="/var/log/gateway_mfr"
     export ERL_CRASH_DUMP="/var/log/gateway_mfr"
     export ERL_EPMD_ADDRESS="127.0.0.1"
-    export HOME=/var/run
+    export HOME="/var/run"
+    export RELX_CONFIG_PATH="/var/run/gateway_mfr_sys.config"
+
+    # Prepare config file
+    cp ${SYS_CONF} ${RELX_CONFIG_PATH}
+    ECC_SLOT=0
+    test ${ECC_ADDRESS} == 0x58 && ECC_SLOT=2
+    sed -ri "s/ecc_key_slot, [[:digit:]]/ecc_key_slot, ${ECC_SLOT}/" ${RELX_CONFIG_PATH}
+    sed -ri "s/ecc_address, 16#[[:digit:]]+/ecc_address, 16#${ECC_ADDRESS:2}/" ${RELX_CONFIG_PATH}
 
     ${PROG} foreground &>> ${LOG} &
     sleep 2  # Allow 2 seconds for service to become reachable
