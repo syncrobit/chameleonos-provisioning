@@ -54,13 +54,17 @@ send_prov_info() {
     
     test -r /sys/class/net/eth0/address && eth_mac=$(cat /sys/class/net/eth0/address)
     test -r /sys/class/net/wlan0/address && wlan_mac=$(cat /sys/class/net/wlan0/address)
+    address=$(cat /var/run/hotspot_address)
+    name=$(cat /var/run/hotspot_name)
 
     prov_info_json="{
         \"rpi_sn\":\"${prov_info[0]}\",
         \"ecc_sn\":\"${prov_info[1]}\",
         \"pub_key\":\"${prov_info[2]}\",
         \"eth_mac\":\"${eth_mac}\",
-        \"wlan_mac\":\"${wlan_mac}\"
+        \"wlan_mac\":\"${wlan_mac}\",
+        \"address\":\"${address}\",
+        \"name\":\"${name}\"
     }"
     
     prov_info_json=$(echo "${prov_info_json}" | tr -d '\t\n ')
@@ -86,6 +90,8 @@ send_prov_info() {
     echo " # Pub Key:  ${prov_info[2]}"
     echo " # ETH MAC:  ${eth_mac}"
     echo " # WLAN MAC: ${wlan_mac}"
+    echo " # Address:  ${address}"
+    echo " # Name:     ${name}"
 }
 
 start() {

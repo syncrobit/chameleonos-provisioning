@@ -1,0 +1,93 @@
+#!/bin/bash
+
+WORK_DIR="/opt/miner"
+PROG="bin/miner"
+FULL_PROG=${WORK_DIR}/${PROG}
+LOG="/var/log/miner/startup.log"
+USER_SWARM_KEY="/var/lib/user_swarm_key"
+MINER_SWARM_KEY="/var/lib/miner/miner/swarm_key"
+SYS_CONF="/opt/miner/releases/0.1.0/sys.config"
+USER_CONF="/data/etc/miner_sys.config"
+HARDWARE_CONF="/var/run/hardware.conf"
+
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+source ${HARDWARE_CONF}
+
+
+start() {
+    # Always start with a clean slate
+    rm -rf /var/lib/miner
+    msg_begin "Obtaining hotspot address and name"
+
+    if ! [[ -e /dev/i2c-1 ]] && ! [[ -s ${USER_SWARM_KEY} ]]; then
+        msg_fail "no I2C device"
+        return
+    fi
+
+    cd ${WORK_DIR}
+    mkdir -p $(dirname ${LOG})
+    
+    export RUNNER_LOG_DIR="/var/log/miner"
+    export ERL_CRASH_DUMP="/var/log/miner"
+    export ERL_FULLSWEEP_AFTER=5
+    export HOME=/var/run
+    export RELX_CONFIG_PATH="/var/run/miner_sys.config"
+    ulimit -n 8192
+    
+    cp ${SYS_CONF} ${RELX_CONFIG_PATH}
+        
+    # Adjust dirs
+    sed -ri 's;base_dir, ".*";base_dir, "/var/lib/miner";' ${RELX_CONFIG_PATH}
+    sed -ri 's;onboarding_dir, ".*";onboarding_dir, "/boot";' ${RELX_CONFIG_PATH}
+    
+    # If user swarm key is present, configure miner to use it instead of ECC
+    if [[ -s ${USER_SWARM_KEY} ]]; then
+        sed -ri 's/(.*key_slot.*)/%%\1/' ${RELX_CONFIG_PATH}
+
+        # If swarm key has changed, we need to resync
+        new_sk_hash=$(md5sum ${USER_SWARM_KEY} | cut -d ' ' -f 1)
+        test -s ${MINER_SWARM_KEY} && old_sk_hash=$(md5sum ${MINER_SWARM_KEY} | cut -d ' ' -f 1)
+        test "${old_sk_hash}" == "${new_sk_hash}" || sync_needed="true"
+        
+        # Copy user swarm key to miner swarm key location
+        mkdir -p $(dirname ${MINER_SWARM_KEY})
+        cp ${USER_SWARM_KEY} ${MINER_SWARM_KEY}
+        
+    # Configure ECC address and slot
+    else
+        sed -ri "s/key_slot, [[:digit:]]+/key_slot, ${ECC_SLOT}/" ${RELX_CONFIG_PATH}
+        sed -ri "s/address, 16#[[:digit:]]+/address, 16#${ECC_ADDRESS:2}/" ${RELX_CONFIG_PATH}
+    fi
+        
+    public_keys=$(${PROG} print_keys)
+    if [[ $? != 0 ]]; then
+        msg_fail "failed to print public key"
+        return 1
+    fi    
+    echo $public_keys > /var/run/public_keys
+    cat /var/run/public_keys | grep -oE '[a-zA-Z0-9]{50}' | head -1 > /var/run/hotspot_address
+    cat /var/run/public_keys | grep -oE '[a-z]+-[a-z]+-[a-z]+' > /var/run/hotspot_name
+
+    # Clean up
+    rm -rf /var/lib/miner
+    
+    msg_done
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+
+    stop)
+        true
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+esac
+
+exit $?

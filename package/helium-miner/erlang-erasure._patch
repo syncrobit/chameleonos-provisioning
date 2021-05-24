@@ -1,15 +1,48 @@
-diff -uNr erlang-erasure/c_src/compile.sh erlang-erasure-patched/c_src/compile.sh
---- erlang-erasure/c_src/compile.sh	2020-05-12 03:10:28.000000000 +0300
-+++ erlang-erasure-patched/c_src/compile.sh	2021-01-31 22:16:21.133315366 +0200
-@@ -1,8 +1,10 @@
--#!/bin/sh
-+#!/bin/bash
+diff -uNr erlang-erasure-orig/c_src/cmake/FindGFComplete.cmake erlang-erasure-patched/c_src/cmake/FindGFComplete.cmake
+--- erlang-erasure-orig/c_src/cmake/FindGFComplete.cmake	2021-03-09 00:50:46.000000000 +0200
++++ erlang-erasure-patched/c_src/cmake/FindGFComplete.cmake	2021-03-28 23:41:51.383074952 +0300
+@@ -8,6 +8,8 @@
+ set(CONFIGURE_ARGS $ENV{CONFIGURE_ARGS})
+ separate_arguments(CONFIGURE_ARGS)
  
- GF_VERSION="a6862d10c9db467148f20eef2c6445ac9afd94d8"
- JE_VERSION="de1739cc8483696506829b52e7fda4f6bb195e6a"
++string(REPLACE "-L " "-L" LDFLAGS2 $ENV{LDFLAGS})
++
+ set(CONFIGURE_CFLAGS   "$ENV{CFLAGS}   ${CMAKE_C_FLAGS_${BUILD_TYPE_UC}}")
  
-+CONFIGURE_ARGS+="--host=aarch64-buildroot-linux-gnu"
-+LDFLAGS=$(sed 's/L /L/' <<< $LDFLAGS)
+ ExternalProject_Add(gf-complete
+@@ -20,10 +22,12 @@
+                     ./configure
+                     --prefix=${CMAKE_CURRENT_BINARY_DIR}
+                     --with-pic
++                    --host=aarch64-buildroot-linux-gnu
+                     --disable-shared
+                     ${CONFIGURE_ARGS}
+                     CC=${CMAKE_C_COMPILER}
+                     CFLAGS=${CONFIGURE_CFLAGS}
++                    LDFLAGS=${LDFLAGS2}
+                     ${GF_APPLE_ENV}  
+   BUILD_COMMAND     ${CMAKE_BUILD_TOOL} -j ${GF_APPLE_ENV}
+   BUILD_BYPRODUCTS  ${CMAKE_CURRENT_BINARY_DIR}/lib/libgf_complete.a
+diff -uNr erlang-erasure-orig/c_src/cmake/FindJerasure.cmake erlang-erasure-patched/c_src/cmake/FindJerasure.cmake
+--- erlang-erasure-orig/c_src/cmake/FindJerasure.cmake	2021-03-09 00:50:46.000000000 +0200
++++ erlang-erasure-patched/c_src/cmake/FindJerasure.cmake	2021-03-28 23:45:27.287202963 +0300
+@@ -11,8 +11,10 @@
+ set(CONFIGURE_ARGS $ENV{CONFIGURE_ARGS})
+ separate_arguments(CONFIGURE_ARGS)
  
- if [ ! -d c_src/gf-complete ]; then
-     git clone http://github.com/ceph/gf-complete.git c_src/gf-complete
++string(REPLACE "-L " "-L" LDFLAGS2 $ENV{LDFLAGS})
++
+ set(CONFIGURE_CFLAGS   "$ENV{CFLAGS}   -I${CMAKE_CURRENT_BINARY_DIR}/include ${CMAKE_C_FLAGS_${BUILD_TYPE_UC}}")
+-set(CONFIGURE_LDFLAGS  "$ENV{LDFLAGS}  -L${CMAKE_CURRENT_BINARY_DIR}/lib")
++set(CONFIGURE_LDFLAGS  "${LDFLAGS2}    -L${CMAKE_CURRENT_BINARY_DIR}/lib")
+ 
+ ExternalProject_Add(jerasure
+   PREFIX            ${CMAKE_CURRENT_BINARY_DIR}/jerasure
+@@ -24,6 +26,7 @@
+                     ./configure
+                     --prefix=${CMAKE_CURRENT_BINARY_DIR}
+                     --with-pic
++                     --host=aarch64-buildroot-linux-gnu
+                     --disable-shared
+                     ${CONFIGURE_ARGS}
+                     CC=${CMAKE_C_COMPILER}

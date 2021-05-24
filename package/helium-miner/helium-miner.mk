@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-HELIUM_MINER_VERSION = 2021.01.22.0
+HELIUM_MINER_VERSION = 2021.05.20.0_GA
 HELIUM_MINER_SITE = $(call github,helium,miner,$(HELIUM_MINER_VERSION))
 HELIUM_MINER_LICENSE = Apache-2.0
 HELIUM_MINER_LICENSE_FILES = LICENSE
@@ -22,17 +22,17 @@ define HELIUM_MINER_FETCH_PATCH_DEPS
             ERLANG_ROCKSDB_OPTS="-DWITH_BUNDLE_SNAPPY=ON -DWITH_BUNDLE_LZ4=ON" \
             ERL_COMPILER_OPTIONS="[deterministic]" \
             ERTS_INCLUDE_DIR="$(STAGING_DIR)/usr/lib/erlang/erts-10.6/include" \
+            CARGO_HOME=$(HOST_DIR)/share/cargo \
             $(REBAR_TARGET_DEPS_ENV) \
             $(TARGET_MAKE_ENV) \
-            CARGO_HOME=$(HOST_DIR)/share/cargo \
             CARGO_BUILD_TARGET=aarch64-unknown-linux-gnu \
             ./rebar3 get-deps \
     )
-    
+
     patch -d $(@D)/_build/default/lib/erasure -p1 < package/helium-miner/erlang-erasure._patch
     patch -d $(@D)/_build/default/lib/erlang_pbc -p1 < package/helium-miner/erlang-pbc._patch
     patch -d $(@D)/_build/default/lib/procket -p1 < package/helium-miner/procket._patch
-    patch -d $(@D)/_build/default/lib/rocksdb -p1 < package/helium-miner/erlang-rocksdb._patch
+    patch -d $(@D)/_build/default/lib/ecc508 -p1 < package/helium-miner/ecc508._patch
 endef
             
 define HELIUM_MINER_BUILD_CMDS
@@ -61,7 +61,7 @@ define HELIUM_MINER_INSTALL_TARGET_CMDS
     wget https://github.com/helium/blockchain-api/raw/master/priv/prod/genesis -O update/genesis; \
     cp $(TARGET_DIR)/usr/lib/erlang/bin/no_dot_erlang.boot .
     
-    rm -rf $(TARGET_DIR)/opt/gateway_config/$${HOME}
+    rm -rf $(TARGET_DIR)/opt/miner/$${HOME}
     cp $(@D)/config/com.helium.Miner.conf $(TARGET_DIR)/etc/dbus-1/system.d
 endef
 
