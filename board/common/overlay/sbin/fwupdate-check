@@ -1,0 +1,52 @@
+#!/bin/bash
+
+source /etc/init.d/base
+
+#BASE_URL="https://fwd.%ssyncrob.it"  # Use if service can't do region redirection
+BASE_URL="https://fwd.syncrob.it"
+REG_CONF="/var/lib/reg.conf"
+MIN_UPTIME=3600
+
+test -s ${REG_CONF} && source ${REG_CONF}
+BASE_URL=$(printf "${BASE_URL}" "${REGION_PREFIX}")
+
+cmdline_args="$*"
+
+function arg_present() {
+    for arg in ${cmdline_args}; do
+        if [ "${arg}" == "$1" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+
+if [[ "${OS_DEBUG}" == "true" ]] && ! arg_present "--force"; then
+    echo "skipping firmware update check in debug mode"
+    exit
+fi
+
+if ps aux | grep '{fwupdate}' | grep -vq grep && ! arg_present "--force"; then
+    echo "firmware update process is already running"
+    exit
+fi
+
+latest_file="latest.json"
+latest_url="${BASE_URL}/chpr/${latest_file}"
+latest=$(curl -sSL ${latest_url})
+latest=$(jq -r '.path,.version,.date' <<<"${latest}")
+latest=(${latest})
+latest_path=${latest[0]}
+latest_version=${latest[1]}
+
+if [[ "${OS_VERSION}" == "${latest_version}" ]]; then
+    echo "already running latest version (${latest_version})"
+    exit
+fi
+
+firmware_url="${BASE_URL}${latest_path}"
+panic_inhibit
+echo "updating from ${OS_VERSION} to ${latest_version} using ${firmware_url}"
+fwupdate upgrade "${firmware_url}"

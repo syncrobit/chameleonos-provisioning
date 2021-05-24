@@ -1,0 +1,20 @@
+#!/bin/bash
+
+test -n "${OS_VERSION}" || source /etc/init.d/base
+
+
+case "$1" in
+    start)
+        msg_begin "Checking for firmware updates"
+        /sbin/fwupdate-check
+        ;;
+    
+    stop)
+        ;;
+
+    *)
+        echo "Usage: $0 {start}"
+        exit 1
+esac
+
+exit $?
