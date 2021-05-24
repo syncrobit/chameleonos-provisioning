@@ -33,8 +33,6 @@ start() {
 
     # Prepare config file
     cp ${SYS_CONF} ${RELX_CONFIG_PATH}
-    ECC_SLOT=0
-    test ${ECC_ADDRESS} == 0x58 && ECC_SLOT=2
     sed -ri "s/ecc_key_slot, [[:digit:]]/ecc_key_slot, ${ECC_SLOT}/" ${RELX_CONFIG_PATH}
     sed -ri "s/ecc_address, 16#[[:digit:]]+/ecc_address, 16#${ECC_ADDRESS:2}/" ${RELX_CONFIG_PATH}
 
