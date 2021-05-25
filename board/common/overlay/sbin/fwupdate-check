@@ -57,5 +57,5 @@ fi
 firmware_url="${BASE_URL}${latest_path}"
 panic_inhibit
 echo "updating from ${OS_VERSION} to ${latest_version} using ${firmware_url}"
-${LED_PROG} on $LED_COLOR_FWUPDATE}
+${LED_PROG} on ${LED_COLOR_FWUPDATE}
 fwupdate upgrade "${firmware_url}"
