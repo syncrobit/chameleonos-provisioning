@@ -35,11 +35,16 @@ fi
 
 latest_file="latest.json"
 latest_url="${BASE_URL}/chpr/${latest_file}"
-latest=$(curl -sSL ${latest_url})
+latest=$(curl --fail -sSL ${latest_url})
 latest=$(jq -r '.path,.version,.date' <<<"${latest}")
 latest=(${latest})
 latest_path=${latest[0]}
 latest_version=${latest[1]}
+
+if [[ -z "${latest_version}" ]]; then
+    echo "Error getting the latest version"
+    exit
+fi
 
 if [[ "${OS_VERSION}" == "${latest_version}" ]]; then
     echo "already running latest version (${latest_version})"
