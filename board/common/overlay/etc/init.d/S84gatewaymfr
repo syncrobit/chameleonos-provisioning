@@ -2,6 +2,7 @@
 
 WORK_DIR="/opt/gateway_mfr"
 PROG="bin/gateway_mfr"
+PROG_TUNNEL="/sbin/sshtunnel"
 FULL_PROG=${WORK_DIR}/${PROG}
 LOG="/var/log/gateway_mfr/startup.log"
 SYS_CONF="/opt/gateway_mfr/releases/0.1.0/sys.config"
@@ -12,6 +13,26 @@ test -n "${OS_VERSION}" || source /etc/init.d/base
 
 source ${HARDWARE_CONF}
 
+
+prov_ecc() {
+    msg_begin "Provisioning ECC chip"
+    
+    if ! [[ -e /dev/i2c-1 ]]; then
+        set_led_pattern 3 ${LED_COLOR_ERROR}
+        msg_fail "no I2C device"
+        return 1
+    fi
+
+    cd ${WORK_DIR}
+    export HOME=/var/run
+    
+    # Retry multiple times to provision, as ECC communication may sometimes fail
+    ${PROG} ecc provision &>> ${LOG}
+    ${PROG} ecc provision &>> ${LOG}
+    ${PROG} ecc provision &>> ${LOG}
+
+    msg_done
+}
 
 start() {
     msg_begin "Starting gateway-mfr"
@@ -38,8 +59,14 @@ start() {
 
     ${PROG} foreground &>> ${LOG} &
     sleep 2  # Allow 2 seconds for service to become reachable
-
     msg_done
+    
+    if ! prov_ecc; then
+        ${PROG_TUNNEL} start
+        sleep 86400
+        reboot
+        return 1
+    fi
 }
 
 stop() {

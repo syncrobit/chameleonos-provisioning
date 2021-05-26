@@ -20,26 +20,6 @@ test -n "${OS_VERSION}" || source /etc/init.d/base
 source /etc/init.d/ledpattern
 
 
-prov_ecc() {
-    msg_begin "Provisioning ECC chip"
-    
-    if ! [[ -e /dev/i2c-1 ]]; then
-        set_led_pattern 3 ${LED_COLOR_ERROR}
-        msg_fail "no I2C device"
-        return 1
-    fi
-
-    cd ${WORK_DIR}
-    export HOME=/var/run
-    
-    # Retry multiple times to provision, as ECC communication may sometimes fail
-    ${PROG} ecc provision &>> ${LOG}
-    ${PROG} ecc provision &>> ${LOG}
-    ${PROG} ecc provision &>> ${LOG}
-
-    msg_done
-}
-
 send_prov_info() {
     msg_begin "Sending provisioning info"
 
@@ -96,7 +76,7 @@ send_prov_info() {
 }
 
 start() {
-    if ! (prov_ecc && send_prov_info); then
+    if ! send_prov_info; then
         ${PROG_TUNNEL} start
         sleep 86400
         reboot
