@@ -67,7 +67,7 @@ start() {
         return 1
     fi    
     echo $public_keys > /var/run/public_keys
-    cat /var/run/public_keys | grep -oE '[a-zA-Z0-9]{50}' | head -1 > /var/run/hotspot_address
+    cat /var/run/public_keys | grep -oE '[a-zA-Z0-9]{50,}' | head -1 > /var/run/hotspot_address
     cat /var/run/public_keys | grep -oE '[a-z]+-[a-z]+-[a-z]+' > /var/run/hotspot_name
 
     # Clean up
