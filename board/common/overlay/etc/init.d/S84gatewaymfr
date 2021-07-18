@@ -34,6 +34,31 @@ prov_ecc() {
     msg_done
 }
 
+check_slot_config() {
+    msg_begin "Checking ECC slot config"
+    
+    if ! [[ -e /dev/i2c-1 ]]; then
+        set_led_pattern 3 ${LED_COLOR_ERROR}
+        msg_fail "no I2C device"
+        return 1
+    fi
+
+    cd ${WORK_DIR}
+    export HOME=/var/run
+    
+    # Retry multiple times, as ECC communication may sometimes fail
+    output=$( \
+        ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' || \
+        ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' || \
+        ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' \
+    )
+    if [[ "${output}" != "READ KEY 7" ]]; then
+        msg_fail "${output}"
+        return 1
+    fi
+    msg_done
+}
+
 start() {
     msg_begin "Starting gateway-mfr"
     
@@ -61,7 +86,7 @@ start() {
     sleep 2  # Allow 2 seconds for service to become reachable
     msg_done
     
-    if ! prov_ecc; then
+    if ! prov_ecc || ! check_slot_config; then
         ${PROG_TUNNEL} start
         sleep 86400
         reboot
