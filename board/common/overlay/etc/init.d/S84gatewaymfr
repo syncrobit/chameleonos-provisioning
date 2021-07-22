@@ -53,6 +53,7 @@ check_slot_config() {
         ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' \
     )
     if [[ "${output}" != "READ KEY 7" ]]; then
+        set_led_pattern 3 ${LED_COLOR_ERROR}
         msg_fail "${output}"
         return 1
     fi
