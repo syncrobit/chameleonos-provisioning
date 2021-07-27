@@ -48,9 +48,9 @@ check_slot_config() {
     
     # Retry multiple times, as ECC communication may sometimes fail
     output=$( \
-        ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' || \
-        ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' || \
-        ${PROG} eval "{ok, Pid} = ecc508:start_link(), ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' \
+        ${PROG} eval "{ok, State} = gateway_mfr_worker:init(nvm), {_, Pid} = State, ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' || \
+        ${PROG} eval "{ok, State} = gateway_mfr_worker:init(nvm), {_, Pid} = State, ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' || \
+        ${PROG} eval "{ok, State} = gateway_mfr_worker:init(nvm), {_, Pid} = State, ecc508:wake(Pid), ecc508:get_slot_config(Pid, ${ECC_SLOT})." | grep 'READ KEY' \
     )
     if [[ "${output}" != "READ KEY 7" ]]; then
         set_led_pattern 3 ${LED_COLOR_ERROR}
