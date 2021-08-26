@@ -10,6 +10,7 @@ MIN_UPTIME=3600
 LED_PROG="/usr/bin/ledstrip"
 LED_COLOR_FWUPDATE="cyan"
 
+source /etc/init.d/base
 test -s ${REG_CONF} && source ${REG_CONF}
 BASE_URL=$(printf "${BASE_URL}" "${REGION_PREFIX}")
 
@@ -37,7 +38,7 @@ if ps aux | grep '{fwupdate}' | grep -vq grep && ! arg_present "--force"; then
 fi
 
 latest_file="latest.json"
-latest_url="${BASE_URL}/chpr/${latest_file}"
+latest_url="${BASE_URL}/${OS_PREFIX}/${latest_file}"
 latest=$(curl --fail -sSL ${latest_url})
 latest=$(jq -r '.path,.version,.date' <<<"${latest}")
 latest=(${latest})

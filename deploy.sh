@@ -128,7 +128,6 @@ if [[ -z "${VENDOR}" ]]; then
 fi
 
 set -a
-source ${base_path}/vendors/common.conf
 source ${base_path}/vendors/${VENDOR}.conf
 set +a 
 
