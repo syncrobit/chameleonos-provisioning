@@ -10,7 +10,7 @@ export BOOT_DIR=${TARGET}/../images/boot/
 export IMG_DIR=${TARGET}/../images
 export DL_DIR=$(realpath ${TARGET}/../../../dl)
 
-FINAL_OS_PREFIX=$(source ${COMMOND_DIR}/../../../chameleonos/vendors/${VENDOR} && echo ${THINGOS_PREFIX})
+FINAL_OS_PREFIX=$(source ${COMMON_DIR}/../../../chameleonos/vendors/${VENDOR}.conf && echo ${THINGOS_PREFIX})
 FINAL_OS_BASE_URL="https://syncrobit-firmware.us-east-1.linodeobjects.com"
 FINAL_OS_LATEST_STABLE_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest_stable.json"
 FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest.json"
