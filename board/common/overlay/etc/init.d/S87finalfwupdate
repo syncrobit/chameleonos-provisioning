@@ -2,9 +2,11 @@
 
 PROG="/sbin/fwupdate"
 BASE_URL="https://fwd.syncrob.it"
-LATEST_URL="${BASE_URL}/cham/latest_stable.json"
 FINAL_FIRMWARE_PATH="/final_firmware.img.xz"
 
+source /final_os_info
+
+LATEST_URL="${BASE_URL}/${FINAL_OS_PREFIX}/latest_stable.json"
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 

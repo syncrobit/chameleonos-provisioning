@@ -17,6 +17,7 @@ LED_COLOR_ERROR="red"
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
 source /etc/init.d/ledpattern
+source /final_os_info
 
 
 send_prov_info() {
@@ -39,7 +40,7 @@ send_prov_info() {
     prov_info_json="{
         \"rpi_sn\":\"${prov_info[0]}\",
         \"ecc_sn\":\"${prov_info[1]}\",
-        \"sb_sn\":\"cham-${prov_info[0]}\",
+        \"sb_sn\":\"${FINAL_OS_PREFIX}-${prov_info[0]}\",
         \"pub_key\":\"${prov_info[2]}\",
         \"eth_mac\":\"${eth_mac}\",
         \"wlan_mac\":\"${wlan_mac}\",

@@ -2,10 +2,6 @@
 
 set -e
 
-FINAL_OS_BASE_URL="https://syncrobit-firmware.us-east-1.linodeobjects.com"
-FINAL_OS_LATEST_STABLE_URL="${FINAL_OS_BASE_URL}/cham/latest_stable.json"
-FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/cham/latest.json"
-
 export TARGET="$1"
 export BOARD=$(basename $(dirname ${TARGET}))
 export COMMON_DIR=$(dirname $0)
@@ -13,6 +9,11 @@ export BOARD_DIR=${COMMON_DIR}/../${BOARD}
 export BOOT_DIR=${TARGET}/../images/boot/
 export IMG_DIR=${TARGET}/../images
 export DL_DIR=$(realpath ${TARGET}/../../../dl)
+
+FINAL_OS_PREFIX=$(source ${COMMOND_DIR}/../../../chameleonos/vendors/${VENDOR} && echo ${THINGOS_PREFIX})
+FINAL_OS_BASE_URL="https://syncrobit-firmware.us-east-1.linodeobjects.com"
+FINAL_OS_LATEST_STABLE_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest_stable.json"
+FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest.json"
 
 mkdir -p ${BOOT_DIR}
 
@@ -87,3 +88,4 @@ if ! [ -s ${final_os_filepath} ]; then
 fi
 
 cp ${final_os_filepath} ${TARGET}/final_firmware.img.xz
+echo "FINAL_OS_PREFIX=${FINAL_OS_PREFIX}" > ${TARGET}/final_os_info

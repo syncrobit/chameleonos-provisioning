@@ -1,4 +1,4 @@
-OS_NAME="ChameleonOS Provisioning"
-OS_SHORT_NAME="chameleonos-provisioning"
+OS_NAME="ChameleonOS"
+OS_SHORT_NAME="chameleonos"
 OS_PREFIX="chpr"
 OS_VERSION="unknown"
