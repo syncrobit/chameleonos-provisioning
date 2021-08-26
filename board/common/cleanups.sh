@@ -58,11 +58,8 @@ rm -f ${TARGET}/usr/bin/colrm
 rm -f ${TARGET}/usr/sbin/addpart
 rm -f ${TARGET}/sbin/blkdiscard
 rm -f ${TARGET}/usr/sbin/delpart
-rm -f ${TARGET}/usr/bin/column
-rm -f ${TARGET}/sbin/swapon
 rm -f ${TARGET}/usr/sbin/resizepart
 rm -f ${TARGET}/usr/bin/hexdump
-rm -f ${TARGET}/sbin/swapoff
 rm -f ${TARGET}/usr/bin/rev
 rm -f ${TARGET}/sbin/chcpu
 rm -f ${TARGET}/usr/bin/tailf
@@ -82,8 +79,6 @@ rm -f ${TARGET}/usr/bin/ipcmk
 rm -f ${TARGET}/sbin/mkfs.bfs
 rm -f ${TARGET}/usr/bin/ipcrm
 rm -f ${TARGET}/usr/bin/ipcs
-rm -f ${TARGET}/sbin/mkswap
-rm -f ${TARGET}/sbin/swaplabel
 rm -f ${TARGET}/usr/bin/setsid
 rm -f ${TARGET}/sbin/blockdev
 rm -f ${TARGET}/usr/bin/cytune
@@ -107,14 +102,11 @@ rm -f ${TARGET}/usr/sbin/fdformat
 rm -f ${TARGET}/usr/bin/linux32
 rm -f ${TARGET}/usr/bin/linux64
 rm -f ${TARGET}/usr/bin/uname26
-rm -f ${TARGET}/bin/zcat
 rm -f ${TARGET}/bin/zcmp
 rm -f ${TARGET}/bin/zdiff
 rm -f ${TARGET}/bin/zegrep
 rm -f ${TARGET}/bin/zfgrep
 rm -f ${TARGET}/bin/zforce
-rm -f ${TARGET}/bin/zgrep
-rm -f ${TARGET}/bin/zless
 rm -f ${TARGET}/bin/zmore
 rm -f ${TARGET}/bin/znew
 rm -f ${TARGET}/bin/gzexe

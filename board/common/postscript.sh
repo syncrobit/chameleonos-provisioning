@@ -57,6 +57,13 @@ if ! grep -qE '^admin:' ${TARGET}/etc/passwd; then
     echo "admin:x:0:0:root:/root:/bin/sh" >> ${TARGET}/etc/passwd
 fi
 
+# adjust root password
+if [[ -n "${THINGOS_ROOT_PASSWORD_HASH}" ]] && [[ -f ${TARGET}/etc/shadow ]]; then
+    echo "Updating root password hash"
+    sed -ri "s/root:[^:]+:/root:${THINGOS_ROOT_PASSWORD_HASH}:/" ${TARGET}/etc/shadow
+    sed -ri "s/admin:[^:]+:/admin:${THINGOS_ROOT_PASSWORD_HASH}:/" ${TARGET}/etc/shadow
+fi
+
 # embed final OS
 if [ -n "${CHPR_LATEST_BETA}" ]; then
     latest_url=${FINAL_OS_LATEST_URL}

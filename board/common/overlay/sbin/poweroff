@@ -13,6 +13,5 @@ killall rcS &>/dev/null || true
 # after which we stop feeding the watchdog
 (sleep 20 && /usr/bin/killall -STOP watchdog) &
 
-# actual reboot command
-/bin/busybox reboot
-
+# actual poweroff command
+/bin/busybox poweroff
