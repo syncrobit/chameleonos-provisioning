@@ -12,6 +12,7 @@ HARDWARE_CONF="/var/run/hardware.conf"
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
 source ${HARDWARE_CONF}
+source /etc/init.d/ledpattern
 
 
 prov_ecc() {
