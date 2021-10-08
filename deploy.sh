@@ -1,8 +1,7 @@
 #!/bin/bash
 
-REGIONS="us-east-1 eu-central-1 ap-south-1"
 BUCKET="syncrobit-firmware"
-S3CMD="s3cmd -c ${HOME}/.s3cfg-linode"
+S3CMD="s3cmd -c ${HOME}/.s3cfg-chameleon"
 
 function exit_usage() {
     echo "Usage: $0 <release|unrelease|promote|upload> [image.xz]"
@@ -24,32 +23,25 @@ if [[ -z "$2" ]]; then
 fi
 
 function s3upload() {
-    # $1 - region
-    # $2 - prefix
-    # $3 - file
+    # $1 - prefix
+    # $2 - file
     
-    host=${region}.linodeobjects.com
-    ${S3CMD} put --acl-public --guess-mime-type --host=${host} --host-bucket=${host} $3 \
-             s3://${BUCKET}/$2/$(basename $3)
+    ${S3CMD} put --acl-public --guess-mime-type $2 s3://${BUCKET}/$1/$(basename $2)
 }
 
 function s3delete() {
-    # $1 - region
-    # $2 - prefix
-    # $3 - file
+    # $1 - prefix
+    # $2 - file
 
-    host=${region}.linodeobjects.com    
-    ${S3CMD} del --host=${host} --host-bucket=${host} s3://${BUCKET}/$2/$3
+    ${S3CMD} del s3://${BUCKET}/$1/$2
 }
 
 function s3copy() {
-    # $1 - region
-    # $2 - prefix
-    # $3 - src_file
-    # $4 - dst_file
+    # $1 - prefix
+    # $2 - src_file
+    # $3 - dst_file
 
-    host=${region}.linodeobjects.com    
-    ${S3CMD} cp --host=${host} --host-bucket=${host} s3://${BUCKET}/$2/$3 s3://${BUCKET}/$2/$4
+    ${S3CMD} cp s3://${BUCKET}/$1/$2 s3://${BUCKET}/$1/$3
 }
 
 function make_latest() {
@@ -72,9 +64,6 @@ function get_image_params() {
 }
 
 function main() {
-    # $1 - region
-    
-    region=$1
     if [[ -n "${image_path}" ]]; then
         image_name=$(basename ${image_path})
         image_params=($(get_image_params ${image_name}))
@@ -90,16 +79,16 @@ function main() {
                 echo "Invalid OS image prefix: ${os_prefix}"
                 exit 1
             fi
-            s3upload ${region} ${THINGOS_PREFIX} ${image_path}
+            s3upload ${THINGOS_PREFIX} ${image_path}
             latest_file="latest.json"
             make_latest "/${THINGOS_PREFIX}/${image_name}" ${version} > /tmp/${latest_file}
-            s3upload ${region} ${THINGOS_PREFIX} /tmp/${latest_file}
+            s3upload ${THINGOS_PREFIX} /tmp/${latest_file}
             ;;
 
         unrelease)
             latest_file="latest"
             latest_file+=".json"
-            s3delete ${region} ${THINGOS_PREFIX} ${latest_file}
+            s3delete ${THINGOS_PREFIX} ${latest_file}
             ;;
         
         promote)
@@ -109,7 +98,7 @@ function main() {
             fi
             latest_file="latest.json"
             make_latest "/${THINGOS_PREFIX}/${image_name}" ${version} > /tmp/${latest_file}
-            s3upload ${region} ${THINGOS_PREFIX} /tmp/${latest_file}
+            s3upload ${THINGOS_PREFIX} /tmp/${latest_file}
             ;;
 
         upload)
@@ -117,7 +106,7 @@ function main() {
                 echo "Invalid OS image prefix: ${os_prefix}"
                 exit 1
             fi
-            s3upload ${region} ${THINGOS_PREFIX} ${image_path}
+            s3upload ${THINGOS_PREFIX} ${image_path}
             ;;
     esac
 }
@@ -131,7 +120,4 @@ set -a
 source ${base_path}/vendors/${VENDOR}.conf
 set +a 
 
-
-for region in ${REGIONS}; do
-    main ${region}
-done
+main
