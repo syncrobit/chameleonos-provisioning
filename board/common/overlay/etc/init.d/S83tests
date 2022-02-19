@@ -41,9 +41,11 @@ test_wlan() {
 test_bt() {
     msg_begin "Testing Bluetooth adapter"
     
-    if ! hciconfig hci0 &>/dev/null; then
+    bt_devices=$(bluetoothctl list)
+    if [[ -z "${bt_devices}" ]]; then
         set_led_pattern 2 ${LED_COLOR_ERROR}
         msg_fail "no device"
+        return 1
     fi
 
     set_led_pattern 2 ${LED_COLOR_OK}
