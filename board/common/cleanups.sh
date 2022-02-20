@@ -68,8 +68,8 @@ rm -f ${TARGET}/sbin/blkid
 rm -f ${TARGET}/usr/bin/ul
 rm -f ${TARGET}/sbin/findfs
 rm -f ${TARGET}/sbin/wipefs
-rm -f ${TARGET}/usr/bin/script
 rm -f ${TARGET}/usr/bin/scriptreplay
+rm -f ${TARGET}/usr/bin/scriptlive
 rm -f ${TARGET}/sbin/fsck.minix
 rm -f ${TARGET}/sbin/mkfs.minix
 rm -f ${TARGET}/usr/bin/setterm
@@ -198,10 +198,13 @@ rm -f ${TARGET}/etc/init.d/S10udev
 rm -f ${TARGET}/etc/init.d/S15watchdog
 rm -f ${TARGET}/etc/init.d/S20urandom
 rm -f ${TARGET}/etc/init.d/S21rngd
+rm -f ${TARGET}/etc/init.d/S35iptables
+rm -f ${TARGET}/etc/init.d/S40bluetooth
 rm -f ${TARGET}/etc/init.d/S45connman
 rm -f ${TARGET}/etc/init.d/S48sntp
 rm -f ${TARGET}/etc/init.d/S49ntp
 rm -f ${TARGET}/etc/init.d/S49chrony
+rm -f ${TARGET}/etc/init.d/S50avahi-daemon
 rm -f ${TARGET}/etc/init.d/S50sshd
 rm -f ${TARGET}/etc/init.d/S50proftpd
 rm -f ${TARGET}/etc/init.d/S50postgresql

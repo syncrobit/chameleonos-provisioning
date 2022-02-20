@@ -7,7 +7,6 @@ export BOARD=$(basename $(dirname ${TARGET}))
 export COMMON_DIR=$(dirname $0)
 export BOARD_DIR=${COMMON_DIR}/../${BOARD}
 export BOOT_DIR=${TARGET}/../images/boot/
-export IMG_DIR=${TARGET}/../images
 export DL_DIR=$(realpath ${TARGET}/../../../dl)
 
 FINAL_OS_PREFIX=$(source ${COMMON_DIR}/../../../chameleonos/vendors/${VENDOR}.conf && echo ${THINGOS_PREFIX})
@@ -61,8 +60,8 @@ fi
 # adjust root password
 if [[ -n "${THINGOS_ROOT_PASSWORD_HASH}" ]] && [[ -f ${TARGET}/etc/shadow ]]; then
     echo "Updating root password hash"
-    sed -ri "s/root:[^:]+:/root:${THINGOS_ROOT_PASSWORD_HASH}:/" ${TARGET}/etc/shadow
-    sed -ri "s/admin:[^:]+:/admin:${THINGOS_ROOT_PASSWORD_HASH}:/" ${TARGET}/etc/shadow
+    sed -ri "s,root:[^:]+:,root:${THINGOS_ROOT_PASSWORD_HASH}:," ${TARGET}/etc/shadow
+    sed -ri "s,admin:[^:]+:,admin:${THINGOS_ROOT_PASSWORD_HASH}:," ${TARGET}/etc/shadow
 fi
 
 # embed final OS
