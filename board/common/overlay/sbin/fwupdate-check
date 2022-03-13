@@ -5,7 +5,6 @@ source /etc/init.d/base
 #BASE_URL="https://fwd.%ssyncrob.it"  # Use if service can't do region redirection
 BASE_URL="https://fwd.syncrob.it"
 REG_CONF="/var/lib/reg.conf"
-MIN_UPTIME=3600
 
 LED_PROG="/usr/bin/ledstrip"
 LED_COLOR_FWUPDATE="cyan"
@@ -28,16 +27,16 @@ function arg_present() {
 
 
 if [[ "${OS_DEBUG}" == "true" ]] && ! arg_present "--force"; then
-    echo "skipping firmware update check in debug mode"
+    echo "Skipping firmware update check in debug mode"
     exit
 fi
 
 if ps aux | grep '{fwupdate}' | grep -vq grep && ! arg_present "--force"; then
-    echo "firmware update process is already running"
+    echo "Firmware update process is already running"
     exit
 fi
 
-latest_file="latest.json"
+latest_file="latest_info.json"
 latest_url="${BASE_URL}/${OS_PREFIX}/${latest_file}"
 latest=$(curl --fail -sSL ${latest_url})
 latest=$(jq -r '.path,.version,.date' <<<"${latest}")
@@ -51,12 +50,12 @@ if [[ -z "${latest_version}" ]]; then
 fi
 
 if [[ "${OS_VERSION}" == "${latest_version}" ]]; then
-    echo "already running latest version (${latest_version})"
+    echo "Already running latest version (${latest_version})"
     exit
 fi
 
 firmware_url="${BASE_URL}${latest_path}"
 panic_inhibit
-echo "updating from ${OS_VERSION} to ${latest_version} using ${firmware_url}"
+echo "Updating from ${OS_VERSION} to ${latest_version} using ${firmware_url}"
 ${LED_PROG} on ${LED_COLOR_FWUPDATE}
 fwupdate upgrade "${firmware_url}"

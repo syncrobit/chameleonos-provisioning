@@ -18,9 +18,9 @@ source /etc/init.d/ledpattern
 prov_ecc() {
     msg_begin "Provisioning ECC chip"
     
-    if ! [[ -e /dev/i2c-1 ]]; then
+    if ! [[ -e /dev/i2c-${I2C_BUS} ]]; then
         set_led_pattern 3 ${LED_COLOR_ERROR}
-        msg_fail "no I2C device"
+        msg_fail "no I2C bus"
         return 1
     fi
 
@@ -38,9 +38,9 @@ prov_ecc() {
 check_slot_config() {
     msg_begin "Checking ECC slot config"
     
-    if ! [[ -e /dev/i2c-1 ]]; then
+    if ! [[ -e /dev/i2c-${I2C_BUS} ]]; then
         set_led_pattern 3 ${LED_COLOR_ERROR}
-        msg_fail "no I2C device"
+        msg_fail "no I2C bus"
         return 1
     fi
 
@@ -64,8 +64,8 @@ check_slot_config() {
 start() {
     msg_begin "Starting gateway-mfr"
     
-    if ! [[ -e /dev/i2c-1 ]]; then
-        msg_fail "no I2C device"
+    if ! [[ -e /dev/i2c-${I2C_BUS} ]]; then
+        msg_fail "no I2C bus"
         return 1
     fi
 
@@ -83,6 +83,7 @@ start() {
     cp ${SYS_CONF} ${RELX_CONFIG_PATH}
     sed -ri "s/ecc_key_slot, [[:digit:]]/ecc_key_slot, ${ECC_SLOT}/" ${RELX_CONFIG_PATH}
     sed -ri "s/ecc_address, 16#[[:digit:]]+/ecc_address, 16#${ECC_ADDRESS:2}/" ${RELX_CONFIG_PATH}
+    sed -ri "s/i2c-1/i2c-${I2C_BUS}/g" ${RELX_CONFIG_PATH}
 
     ${PROG} foreground &>> ${LOG} &
     sleep 2  # Allow 2 seconds for service to become reachable

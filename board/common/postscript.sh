@@ -9,10 +9,10 @@ export BOARD_DIR=${COMMON_DIR}/../${BOARD}
 export BOOT_DIR=${TARGET}/../images/boot/
 export DL_DIR=$(realpath ${TARGET}/../../../dl)
 
-FINAL_OS_PREFIX=$(source ${COMMON_DIR}/../../../chameleonos/vendors/${VENDOR}.conf && echo ${THINGOS_PREFIX})
+FINAL_OS_PREFIX=${THINGOS_PREFIX::-1}
 FINAL_OS_BASE_URL="https://fwd.syncrob.it"
-FINAL_OS_LATEST_STABLE_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest_stable.json"
-FINAL_OS_LATEST_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest.json"
+FINAL_OS_LATEST_STABLE_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest_stable_info.json"
+FINAL_OS_LATEST_BETA_URL="${FINAL_OS_BASE_URL}/${FINAL_OS_PREFIX}/latest_beta_info.json"
 
 mkdir -p ${BOOT_DIR}
 
@@ -65,14 +65,16 @@ if [[ -n "${THINGOS_ROOT_PASSWORD_HASH}" ]] && [[ -f ${TARGET}/etc/shadow ]]; th
 fi
 
 # embed final OS
-if [ -n "${CHPR_LATEST_BETA}" ]; then
-    latest_url=${FINAL_OS_LATEST_URL}
+if [ -n "${FINAL_OS_LATEST_BETA}" ]; then
+    latest_url=${FINAL_OS_LATEST_BETA_URL}
 else
     latest_url=${FINAL_OS_LATEST_STABLE_URL}
 fi
+export platform=${BOARD}
 latest_info=$(curl -sSL ${latest_url})
 latest_path=$(echo "${latest_info}" | jq -r .path)
 final_os_url="${FINAL_OS_BASE_URL}${latest_path}"
+final_os_url=$(envsubst <<<"${final_os_url}")
 final_os_filename=$(basename ${latest_path})
 final_os_filepath=${DL_DIR}/${final_os_filename}
 echo "embedding final OS ${final_os_filename}"
