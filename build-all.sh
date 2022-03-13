@@ -9,13 +9,19 @@ if [[ -z "${VERSION}" ]]; then
     exit 1
 fi
 
-VENDORS=$(ls -1 vendors/ | sed s/.conf//)
+if [[ -z "${VENDORS}" ]]; then
+    VENDORS=$(ls -1 vendors/ | sed s/.conf//)
+fi
 
 export THINGOS_VERSION=${VERSION}
 
 for VENDOR in ${VENDORS}; do
-    echo "Building for ${VENDOR}"
-    ./build.sh raspberrypi4arm64
-    ./build.sh raspberrypi4arm64 mkimage
-    ./build.sh raspberrypi4arm64 mkrelease
+    source vendors/${VENDOR}.conf
+    for PLATFORM in ${PLATFORMS}; do
+        echo "Building ${VENDOR}/${PLATFORM}"
+        rm -f output/${PLATFORM}/.config
+        ./build.sh ${PLATFORM}
+        sudo -E ./build.sh ${PLATFORM} mkimage
+        ./build.sh ${PLATFORM} mkrelease
+    done
 done

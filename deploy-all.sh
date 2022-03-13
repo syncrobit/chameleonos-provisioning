@@ -14,11 +14,15 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
-VENDORS=$(ls -1 vendors/ | sed s/.conf//)
+if [[ -z "${VENDORS}" ]]; then
+    VENDORS=$(ls -1 vendors/ | sed s/.conf//)
+fi
 
 set -a
 for VENDOR in ${VENDORS}; do
-    echo "Deploying for ${VENDOR}"
     source vendors/${VENDOR}.conf
-    ./deploy.sh $1 output/raspberrypi4arm64/images/chameleonos-${THINGOS_PREFIX}-raspberrypi4arm64-${VERSION}.img.xz
+    for PLATFORM in ${PLATFORMS}; do
+        echo "Deploying ${VENDOR}/${PLATFORM}"
+        ./deploy.sh $1 output/${PLATFORM}/images/chameleonos-${THINGOS_PREFIX}-${PLATFORM}-${VERSION}.img.xz
+    done
 done
