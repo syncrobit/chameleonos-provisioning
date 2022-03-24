@@ -78,14 +78,13 @@ final_os_url=$(envsubst <<<"${final_os_url}")
 final_os_filename=$(basename ${latest_path})
 final_os_filepath=${DL_DIR}/${final_os_filename}
 echo "embedding final OS ${final_os_filename}"
-if ! [ -s ${final_os_filepath} ]; then
-    curl -L --fail ${final_os_url} -o ${final_os_filepath}.part
-    fsize=$(stat -c %s ${final_os_filepath}.part)
-    if [ ${fsize} -lt 80000000 ]; then
-        echo "invalid final OS file size"
-        exit 1
-    fi
-    mv ${final_os_filepath}.part ${final_os_filepath}
+rm -f ${final_os_filepath}
+curl -L --fail ${final_os_url} -o ${final_os_filepath}.part
+fsize=$(stat -c %s ${final_os_filepath}.part)
+if [ ${fsize} -lt 80000000 ]; then
+    echo "invalid final OS file size"
+    exit 1
 fi
+mv ${final_os_filepath}.part ${final_os_filepath}
 
 cp ${final_os_filepath} ${TARGET}/final_firmware.img.xz
