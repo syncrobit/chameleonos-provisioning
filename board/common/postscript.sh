@@ -76,6 +76,7 @@ latest_path=$(echo "${latest_info}" | jq -r .path)
 final_os_url="${FINAL_OS_BASE_URL}${latest_path}"
 final_os_url=$(envsubst <<<"${final_os_url}")
 final_os_filename=$(basename ${latest_path})
+final_os_filename=$(envsubst <<<"${final_os_filename}")
 final_os_filepath=${DL_DIR}/${final_os_filename}
 echo "embedding final OS ${final_os_filename}"
 rm -f ${final_os_filepath}
