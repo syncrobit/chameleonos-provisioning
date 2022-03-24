@@ -11,7 +11,7 @@ set_led_pattern() {
     # $1 - LED no.
     # $2 - color
     
-    test "${HAS_LED_STRIP}" == true || exit 0
+    test "${HAS_LED_STRIP}" == true || return
     
     if [[ -s ${LED_PATTERN_FILE} ]]; then
         pattern=$(cat ${LED_PATTERN_FILE})
