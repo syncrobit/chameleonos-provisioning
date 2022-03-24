@@ -6,7 +6,7 @@ FULL_PROG=${WORK_DIR}/${PROG}
 LOG="/var/log/miner/startup.log"
 USER_SWARM_KEY="/var/lib/user_swarm_key"
 MINER_SWARM_KEY="/var/lib/miner/miner/swarm_key"
-SYS_CONF="/opt/miner/releases/0.1.0/sys.config"
+SYS_CONF="/opt/miner/releases/*/sys.config"
 USER_CONF="/data/etc/miner_sys.config"
 HARDWARE_CONF="/var/run/hardware.conf"
 
