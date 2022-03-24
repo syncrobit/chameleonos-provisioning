@@ -17,7 +17,6 @@ LED_COLOR_ERROR="red"
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
 source /etc/init.d/ledpattern
-source /final_os_info
 
 
 send_prov_info() {
@@ -36,11 +35,12 @@ send_prov_info() {
     test -r /sys/class/net/wlan0/address && wlan_mac=$(cat /sys/class/net/wlan0/address)
     address=$(cat /var/run/hotspot_address)
     name=$(cat /var/run/hotspot_name)
+    final_os_prefix=${OS_PREFIX::4}
 
     prov_info_json="{
         \"rpi_sn\":\"${prov_info[0]}\",
         \"ecc_sn\":\"${prov_info[1]}\",
-        \"sb_sn\":\"${FINAL_OS_PREFIX}-${prov_info[0]}\",
+        \"sb_sn\":\"${final_os_prefix}-${prov_info[0]}\",
         \"pub_key\":\"${prov_info[2]}\",
         \"eth_mac\":\"${eth_mac}\",
         \"wlan_mac\":\"${wlan_mac}\",

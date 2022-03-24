@@ -89,4 +89,3 @@ if ! [ -s ${final_os_filepath} ]; then
 fi
 
 cp ${final_os_filepath} ${TARGET}/final_firmware.img.xz
-echo "FINAL_OS_PREFIX=${FINAL_OS_PREFIX}" > ${TARGET}/final_os_info

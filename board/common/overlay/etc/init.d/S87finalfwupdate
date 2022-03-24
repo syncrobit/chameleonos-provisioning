@@ -4,11 +4,10 @@ PROG="/sbin/fwupdate"
 BASE_URL="https://fwd.syncrob.it"
 FINAL_FIRMWARE_PATH="/final_firmware.img.xz"
 
-source /final_os_info
-
-LATEST_URL="${BASE_URL}/${FINAL_OS_PREFIX}/latest_stable_info.json"
-
 test -n "${OS_VERSION}" || source /etc/init.d/base
+
+FINAL_OS_PREFIX=${OS_PREFIX::4}
+LATEST_URL="${BASE_URL}/${FINAL_OS_PREFIX}/latest_stable_info.json"
 
 
 start() {
