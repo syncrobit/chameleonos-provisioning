@@ -8,7 +8,9 @@ LOG="/var/log/provision.log"
 PROV_REGISTER_URL="https://api.syncrob.it/provisioning/"
 AUTH_TOKEN="6993E8BF9E116991FA6581A7BA7D9"
 
-LED_PROG="/usr/bin/ledstrip"
+source /var/run/hardware.conf
+
+test "${HAS_LED_STRIP}" == true && LED_PROG="/usr/bin/ledstrip" || LED_PROG=true
 LED_COLOR_OK="green"
 LED_COLOR_DONE="blue"
 LED_COLOR_ERROR="red"
