@@ -2,11 +2,16 @@
 
 LED_PROG="/usr/bin/ledstrip"
 LED_PATTERN_FILE="/var/run/led_strip_pattern"
+HARDWARE_CONF="/var/run/hardware.conf"
+
+source ${HARDWARE_CONF}
 
 
 set_led_pattern() {
     # $1 - LED no.
     # $2 - color
+    
+    test "${HAS_LED_STRIP}" == true || exit 0
     
     if [[ -s ${LED_PATTERN_FILE} ]]; then
         pattern=$(cat ${LED_PATTERN_FILE})

@@ -23,7 +23,7 @@ OG_LGW_RESET_GPIO=25
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
-PLATFORM_CONF=/etc/platforms/${OS_PREFIX}-${BOARD_NAME}.conf
+PLATFORM_CONF=/etc/platforms/${OS_PREFIX::4}-${BOARD_NAME}.conf
 
 tweak_nbra_raspberrypi64() {
     # Enable button internal pull-up on GPIO26

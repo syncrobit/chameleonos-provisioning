@@ -2,13 +2,25 @@
 
 PROG="/usr/bin/ledstrip"
 COLOR="white"
-
+HARDWARE_CONF="/var/run/hardware.conf"
 
 test -n "${OS_VERSION}" || source /etc/init.d/base
 
+function set_boot_leds_later() {
+    while ! [[ -f ${HARDWARE_CONF} ]]; do  # Wait for hardware config to be ready
+        sleep 1
+    done
+    
+    source ${HARDWARE_CONF}
+    test "${HAS_LED_STRIP}" == true || return
+
+    ${PROG} on ${COLOR}
+}
+
+
 case "$1" in
     start)
-        ${PROG} on ${COLOR}
+        set_boot_leds_later &>/dev/null &
         ;;
 
     stop)
