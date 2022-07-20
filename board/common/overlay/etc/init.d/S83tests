@@ -43,11 +43,12 @@ test_wlan() {
 test_bt() {
     msg_begin "Testing Bluetooth adapter"
     
-    bt_devices=$(bluetoothctl list)
+    bt_devices=$(timeout 5 bluetoothctl list)
     if [[ -z "${bt_devices}" ]]; then
         set_led_pattern 2 ${LED_COLOR_ERROR}
         msg_fail "no device"
-        return 1
+        # return 1
+        return 0
     fi
 
     set_led_pattern 2 ${LED_COLOR_OK}
