@@ -31,6 +31,10 @@ define HELIUM_MINER_BUILD_CMDS
     (cd $(@D); \
             CARGO_HOME=$(HOST_DIR)/share/cargo \
             CARGO_BUILD_TARGET=aarch64-unknown-linux-gnu \
+            CC="$(TARGET_CC)" \
+            CXX="$(TARGET_CXX)" \
+            CFLAGS="$(TARGET_CFLAGS) -U__sun__" \
+            CXXFLAGS="$(TARGET_CXXFLAGS)" \
             RUSTFLAGS="-C target-feature=-crt-static" \
             $(TARGET_MAKE_ENV) \
             $(MAKE) external_svcs \
