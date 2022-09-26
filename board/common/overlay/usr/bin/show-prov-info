@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cat /tmp/_boot.log | grep Testing -A 1000
