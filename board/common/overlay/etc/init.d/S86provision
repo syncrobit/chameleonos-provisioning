@@ -28,7 +28,7 @@ send_prov_info() {
     if [[ $? != 0 ]]; then
         set_led_pattern 3 ${LED_COLOR_ERROR}
         msg_fail
-        return 1
+        #return 1
     fi
     set_led_pattern 3 ${LED_COLOR_OK}
     prov_info=(${prov_info})
@@ -61,7 +61,7 @@ send_prov_info() {
     if [[ $? != 0 ]]; then
         set_led_pattern 5 ${LED_COLOR_ERROR}
         msg_fail
-        return 1
+        #return 1
     fi
     set_led_pattern 5 ${LED_COLOR_OK}
 
@@ -75,6 +75,9 @@ send_prov_info() {
     echo " # WLAN MAC: ${wlan_mac}"
     echo " # Address:  ${address}"
     echo " # Name:     ${name}"
+
+    # Wait a litte while so that provisioning info can be copied
+    sleep 60
 }
 
 start() {
